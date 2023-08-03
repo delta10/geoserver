@@ -121,12 +121,17 @@ RUN wget --progress=bar:force:noscroll -c \
     -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip "*.jar"
 
+# Keycloak plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip \
+    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip "*.jar"
+
 # OAuth2 / OpenID Connect plugin
 RUN wget --progress=bar:force:noscroll -c \
     ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip \
     -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip "*.jar"
-
 
 RUN rm -Rf /opt/additional_libs
 
