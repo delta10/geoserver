@@ -1,6 +1,12 @@
 FROM ubuntu:22.04 as tomcat
 
+ARG GEOSERVER_VERSION=2.23.2
+
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/community-2023-08-03
+ARG COMMUNITY_EXTENSIONS_VERSION=2.23
+
 ARG TOMCAT_VERSION=9.0.75
+
 ARG CORS_ENABLED=false
 ARG CORS_ALLOWED_ORIGINS=*
 ARG CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,HEAD,OPTIONS
@@ -50,7 +56,7 @@ RUN apt purge -y  \
 
 FROM tomcat as download
 
-ARG GS_VERSION=2.23.2
+ARG GS_VERSION=$GEOSERVER_VERSION
 ARG GS_BUILD=release
 ARG WAR_ZIP_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/geoserver-${GS_VERSION}-war.zip
 ENV GEOSERVER_VERSION=$GS_VERSION
@@ -66,28 +72,18 @@ RUN echo "Downloading GeoServer ${GS_VERSION} ${GS_BUILD}" \
 
 FROM tomcat as install
 
-ARG GS_VERSION=2.23.1
+ARG GS_VERSION=$GEOSERVER_VERSION
 ARG GS_BUILD=release
-ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
-ARG COMMUNITY_PLUGIN_URL=''
 
-ARG GS_DATA_PATH=./geoserver_data/
-ARG ADDITIONAL_LIBS_PATH=./additional_libs/
-ARG ADDITIONAL_FONTS_PATH=./additional_fonts/
+ARG COMMUNITY_EXTENSIONS_URL=$COMMUNITY_EXTENSIONS_URL
+ARG COMMUNITY_EXTENSIONS_VERSION=$COMMUNITY_EXTENSIONS_VERSION
 
 ENV GEOSERVER_VERSION=$GS_VERSION
 ENV GEOSERVER_BUILD=$GS_BUILD
 ENV GEOSERVER_DATA_DIR=/opt/geoserver_data/
 ENV GEOSERVER_REQUIRE_FILE=$GEOSERVER_DATA_DIR/global.xml
 ENV GEOSERVER_LIB_DIR=$CATALINA_HOME/webapps/geoserver/WEB-INF/lib/
-ENV INSTALL_EXTENSIONS=false
 ENV WAR_ZIP_URL=$WAR_ZIP_URL
-ENV STABLE_EXTENSIONS=''
-ENV STABLE_PLUGIN_URL=$STABLE_PLUGIN_URL
-ENV COMMUNITY_EXTENSIONS=''
-ENV COMMUNITY_PLUGIN_URL=$COMMUNITY_PLUGIN_URL
-ENV ADDITIONAL_LIBS_DIR=/opt/additional_libs/
-ENV ADDITIONAL_FONTS_DIR=/opt/additional_fonts/
 ENV SKIP_DEMO_DATA=false
 ENV ROOT_WEBAPP_REDIRECT=false
 
@@ -100,10 +96,6 @@ COPY --from=download /tmp/geoserver $CATALINA_HOME/webapps/geoserver
 RUN mv $CATALINA_HOME/webapps/geoserver/WEB-INF/lib/marlin-*.jar $CATALINA_HOME/lib/marlin.jar \
 && mkdir -p $GEOSERVER_DATA_DIR
 
-COPY $GS_DATA_PATH $GEOSERVER_DATA_DIR
-COPY $ADDITIONAL_LIBS_PATH $GEOSERVER_LIB_DIR
-COPY $ADDITIONAL_FONTS_PATH /usr/share/fonts/truetype/
-
 # cleanup
 RUN rm -rf /tmp/*
 
@@ -115,8 +107,28 @@ WORKDIR /opt
 
 RUN useradd --no-create-home geoserver
 
-RUN chown -R geoserver /opt/geoserver_data
 RUN chown -R geoserver /opt/apache-tomcat-9.0.75
+
+RUN mkdir -p /opt/geoserver_data && \
+    chown -R geoserver /opt/geoserver_data
+
+RUN mkdir -p /opt/additional_libs && \
+    chown -R geoserver /opt/additional_libs
+
+# Cloud Optimized GeoTIFF plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip \
+    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip "*.jar"
+
+# OAuth2 / OpenID Connect plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip \
+    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip "*.jar"
+
+
+RUN rm -Rf /opt/additional_libs
 
 USER geoserver
 EXPOSE 8080

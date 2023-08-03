@@ -21,22 +21,10 @@ if [ "${ROOT_WEBAPP_REDIRECT}" = "true" ]; then
 EOF
 fi
 
-
 ## install release data directory if needed before starting tomcat
 if [ ! -z "$GEOSERVER_REQUIRE_FILE" ] && [ ! -f "$GEOSERVER_REQUIRE_FILE" ]; then
   echo "Initialize $GEOSERVER_DATA_DIR from data directory included in geoserver.war"
   cp -r $CATALINA_HOME/webapps/geoserver/data/* $GEOSERVER_DATA_DIR
-fi
-
-## install GeoServer extensions before starting the tomcat
-/opt/install-extensions.sh
-
-# copy additional geoserver libs before starting the tomcat
-# we also count whether at least one file with the extensions exists
-count=`ls -1 $ADDITIONAL_LIBS_DIR/*.jar 2>/dev/null | wc -l`
-if [ -d "$ADDITIONAL_LIBS_DIR" ] && [ $count != 0 ]; then
-    cp $ADDITIONAL_LIBS_DIR/*.jar $CATALINA_HOME/webapps/geoserver/WEB-INF/lib/
-    echo "Installed $count JAR extension file(s) from the additional libs folder"
 fi
 
 # copy additional fonts before starting the tomcat
