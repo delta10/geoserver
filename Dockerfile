@@ -2,7 +2,10 @@ FROM ubuntu:22.04 as tomcat
 
 ARG GEOSERVER_VERSION=2.23.2
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/community-2023-08-03
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=2.23
+
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/community-latest
 ARG COMMUNITY_EXTENSIONS_VERSION=2.23
 
 ARG TOMCAT_VERSION=9.0.75
@@ -34,25 +37,25 @@ ENV CATALINA_OPTS="\$EXTRA_JAVA_OPTS \
 
 # init
 RUN apt update \
-&& apt -y upgrade \
-&& apt install -y --no-install-recommends openssl unzip gdal-bin wget curl openjdk-11-jdk \
-&& apt clean \
-&& rm -rf /var/cache/apt/* \
-&& rm -rf /var/lib/apt/lists/*
+    && apt -y upgrade \
+    && apt install -y --no-install-recommends openssl unzip gdal-bin wget curl openjdk-11-jdk \
+    && apt clean \
+    && rm -rf /var/cache/apt/* \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/
 
 RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz \
-&& tar xf apache-tomcat-${TOMCAT_VERSION}.tar.gz \
-&& rm apache-tomcat-${TOMCAT_VERSION}.tar.gz \
-&& rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT \
-&& rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/docs \
-&& rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/examples
+    && tar xf apache-tomcat-${TOMCAT_VERSION}.tar.gz \
+    && rm apache-tomcat-${TOMCAT_VERSION}.tar.gz \
+    && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT \
+    && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/docs \
+    && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/examples
 
 # cleanup
 RUN apt purge -y  \
-&& apt autoremove --purge -y \
-&& rm -rf /tmp/*
+    && apt autoremove --purge -y \
+    && rm -rf /tmp/*
 
 FROM tomcat as download
 
@@ -65,10 +68,10 @@ ENV GEOSERVER_BUILD=$GS_BUILD
 WORKDIR /tmp
 
 RUN echo "Downloading GeoServer ${GS_VERSION} ${GS_BUILD}" \
-&& wget -q -O /tmp/geoserver.zip $WAR_ZIP_URL \
-&& unzip geoserver.zip geoserver.war -d /tmp/ \
-&& unzip -q /tmp/geoserver.war -d /tmp/geoserver \
-&& rm /tmp/geoserver.war
+    && wget -q -O /tmp/geoserver.zip $WAR_ZIP_URL \
+    && unzip geoserver.zip geoserver.war -d /tmp/ \
+    && unzip -q /tmp/geoserver.war -d /tmp/geoserver \
+    && rm /tmp/geoserver.war
 
 FROM tomcat as install
 
@@ -94,7 +97,7 @@ RUN echo "Installing GeoServer $GS_VERSION $GS_BUILD"
 COPY --from=download /tmp/geoserver $CATALINA_HOME/webapps/geoserver
 
 RUN mv $CATALINA_HOME/webapps/geoserver/WEB-INF/lib/marlin-*.jar $CATALINA_HOME/lib/marlin.jar \
-&& mkdir -p $GEOSERVER_DATA_DIR
+    && mkdir -p $GEOSERVER_DATA_DIR
 
 # cleanup
 RUN rm -rf /tmp/*
@@ -114,6 +117,12 @@ RUN mkdir -p /opt/geoserver_data && \
 
 RUN mkdir -p /opt/additional_libs && \
     chown -R geoserver /opt/additional_libs
+
+# SQLServer plugin (Microsoft SQL)
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sqlserver-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sqlserver-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sqlserver-plugin.zip "*.jar"
 
 # Cloud Optimized GeoTIFF plugin
 RUN wget --progress=bar:force:noscroll -c \
