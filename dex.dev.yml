@@ -1,0 +1,23 @@
+issuer: http://localhost:6556
+
+storage:
+  type: sqlite3
+  config:
+    file: /tmp/dex.db
+
+web:
+  http: 0.0.0.0:6556
+
+staticClients:
+  - id: geoserver
+    redirectURIs:
+      - 'http://localhost/geoserver/web/'
+    name: 'Geoserver'
+    secret: somethingsecret
+
+enablePasswordDB: true
+
+staticPasswords:
+  - email: "admin@example.com"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"  # hash for: password
+    username: "admin"

@@ -1,0 +1,21 @@
+version: "3"
+services:
+  geoserver:
+    build:
+      context: .
+    ports:
+      - 80:8080
+    environment:
+      - EXTRA_JAVA_OPTS=-Xms1G -Xmx2G
+    volumes:
+      - geoserver-data:/opt/geoserver_data
+  dex:
+    image: quay.io/dexidp/dex:v2.28.1
+    command: dex serve /config.yaml
+    volumes:
+      - ./dex.dev.yml:/config.yaml
+    ports:
+      - 6556:6556
+
+volumes:
+  geoserver-data:
