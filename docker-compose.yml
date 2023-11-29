@@ -9,13 +9,24 @@ services:
       - EXTRA_JAVA_OPTS=-Xms1G -Xmx2G
     volumes:
       - geoserver-data:/opt/geoserver_data
+  postgres:
+    image: postgres:15.3
+    environment:
+      - POSTGRES_USER=geo
+      - POSTGRES_PASSWORD=geo
+      - POSTGRES_DB=geo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
   dex:
-    image: ghcr.io/delta10/dex:v2.37.0-delta10.2
+    image: ghcr.io/delta10/dex:2.37.0
     command: dex serve /config.yaml
     volumes:
       - ./dex.dev.yml:/config.yaml
     ports:
-      - 6556:6556
+      - 6557:6556
 
 volumes:
   geoserver-data:
+  postgres-data:
