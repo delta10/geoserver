@@ -1,12 +1,12 @@
 FROM ubuntu:22.04 as tomcat
 
-ARG GEOSERVER_VERSION=2.23.3
+ARG GEOSERVER_VERSION=2.24.1
 
-ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/ext-latest
-ARG STABLE_EXTENSIONS_VERSION=2.23
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.24.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=2.24
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.23.x/community-latest
-ARG COMMUNITY_EXTENSIONS_VERSION=2.23
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.24.x/community-latest
+ARG COMMUNITY_EXTENSIONS_VERSION=2.24
 
 ARG TOMCAT_VERSION=9.0.75
 
@@ -135,6 +135,12 @@ RUN wget --progress=bar:force:noscroll -c \
     ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip "*.jar"
+
+# Monitoring plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip "*.jar"
 
 # Cloud Optimized GeoTIFF plugin
 RUN wget --progress=bar:force:noscroll -c \
