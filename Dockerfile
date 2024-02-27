@@ -142,6 +142,12 @@ RUN wget --progress=bar:force:noscroll -c \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip "*.jar"
 
+# Commons-math3 is used by the monitoring plugin
+RUN wget --progress=bar:force:noscroll -c \
+    https://downloads.apache.org/commons/math/binaries/commons-math3-3.6.1-bin.zip \
+    -O /opt/additional_libs/commons-math3-3.6.1-bin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/commons-math3-3.6.1-bin.zip "commons-math3-3.6.1/commons-math3-3.6.1.jar"
+
 # Cloud Optimized GeoTIFF plugin
 RUN wget --progress=bar:force:noscroll -c \
     ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip \
