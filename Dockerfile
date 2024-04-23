@@ -1,12 +1,12 @@
 FROM ubuntu:22.04 as tomcat
 
-ARG GEOSERVER_VERSION=2.24.3
+ARG GEOSERVER_VERSION=2.25.0
 
-ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.24.x/ext-latest
-ARG STABLE_EXTENSIONS_VERSION=2.24
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.25.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=2.25
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.24.x/community-latest
-ARG COMMUNITY_EXTENSIONS_VERSION=2.24
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.25.x/community-latest
+ARG COMMUNITY_EXTENSIONS_VERSION=2.25
 
 ARG TOMCAT_VERSION=9.0.75
 
