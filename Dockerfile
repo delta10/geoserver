@@ -150,9 +150,9 @@ RUN wget --progress=bar:force:noscroll -c \
 
 # Cloud Optimized GeoTIFF plugin
 RUN wget --progress=bar:force:noscroll -c \
-    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip \
-    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-plugin.zip "*.jar"
+    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip \
+    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip "*.jar"
 
 # Keycloak plugin
 RUN wget --progress=bar:force:noscroll -c \
