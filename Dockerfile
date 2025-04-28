@@ -1,14 +1,14 @@
-FROM ubuntu:22.04 as tomcat
+FROM ubuntu:22.04 AS tomcat
 
-ARG GEOSERVER_VERSION=2.25.5
+ARG GEOSERVER_VERSION=2.26.2
 
-ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.25.x/ext-latest
-ARG STABLE_EXTENSIONS_VERSION=2.25
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.26.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=2.26
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.25.x/community-latest
-ARG COMMUNITY_EXTENSIONS_VERSION=2.25
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.26.x/community-latest
+ARG COMMUNITY_EXTENSIONS_VERSION=2.26
 
-ARG TOMCAT_VERSION=9.0.75
+ARG TOMCAT_VERSION=9.0.104
 
 ARG CORS_ENABLED=false
 ARG CORS_ALLOWED_ORIGINS=*
@@ -32,8 +32,7 @@ ENV CATALINA_OPTS="\$EXTRA_JAVA_OPTS \
     -Djavax.servlet.response.encoding=UTF-8 \
     -D-XX:SoftRefLRUPolicyMSPerMB=36000 \
     -Xbootclasspath/a:$CATALINA_HOME/lib/marlin.jar \
-    -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine \
-    -Dorg.geotools.coverage.jaiext.enabled=true"
+    -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine"
 
 # init
 RUN apt update \
@@ -50,14 +49,16 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/b
     && rm apache-tomcat-${TOMCAT_VERSION}.tar.gz \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/docs \
-    && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/examples
+    && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/examples \
+    && sed -i 's/<Connector/<Connector server=\" \"/g' $CATALINA_HOME/conf/server.xml \
+    && sed -i '/<\/Host>/i\    <Valve className="org.apache.catalina.valves.ErrorReportValve" showServerInfo="false" />' $CATALINA_HOME/conf/server.xml
 
 # cleanup
 RUN apt purge -y  \
     && apt autoremove --purge -y \
     && rm -rf /tmp/*
 
-FROM tomcat as download
+FROM tomcat AS download
 
 ARG GS_VERSION=$GEOSERVER_VERSION
 ARG GS_BUILD=release
@@ -73,7 +74,7 @@ RUN echo "Downloading GeoServer ${GS_VERSION} ${GS_BUILD}" \
     && unzip -q /tmp/geoserver.war -d /tmp/geoserver \
     && rm /tmp/geoserver.war
 
-FROM tomcat as install
+FROM tomcat AS install
 
 ARG GS_VERSION=$GEOSERVER_VERSION
 ARG GS_BUILD=release
@@ -110,7 +111,7 @@ WORKDIR /opt
 
 RUN useradd --no-create-home geoserver
 
-RUN chown -R geoserver /opt/apache-tomcat-9.0.75
+RUN chown -R geoserver /opt/apache-tomcat-${TOMCAT_VERSION}
 
 RUN mkdir -p /opt/geoserver_data && \
     chown -R geoserver /opt/geoserver_data
@@ -129,12 +130,6 @@ RUN wget --progress=bar:force:noscroll -c \
     ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-vectortiles-plugin.zip \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-vectortiles-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-vectortiles-plugin.zip "*.jar"
-
-# WPS plugin
-RUN wget --progress=bar:force:noscroll -c \
-    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip \
-    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip "*.jar"
 
 # Monitoring plugin
 RUN wget --progress=bar:force:noscroll -c \
