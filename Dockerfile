@@ -50,7 +50,7 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/b
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/docs \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/examples \
-    && sed -i 's/<Connector/<Connector server=\" \"/g' $CATALINA_HOME/conf/server.xml \
+    && sed -i 's/<Connector/<Connector maxHttpHeaderSize="32768" server=\" \"/g' $CATALINA_HOME/conf/server.xml \
     && sed -i '/<\/Host>/i\    <Valve className="org.apache.catalina.valves.ErrorReportValve" showServerInfo="false" />' $CATALINA_HOME/conf/server.xml
 
 # cleanup
