@@ -131,6 +131,12 @@ RUN wget --progress=bar:force:noscroll -c \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-vectortiles-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-vectortiles-plugin.zip "*.jar"
 
+# WPS plugin (for PointStacker)
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-wps-plugin.zip "*.jar"
+
 # Monitoring plugin
 RUN wget --progress=bar:force:noscroll -c \
     ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip \
