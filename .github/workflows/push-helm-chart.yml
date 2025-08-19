@@ -1,0 +1,49 @@
+name: Release Helm Chart
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: delta10/charts
+  CHART_NAME: geoserver
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Helm | Login
+        id: login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login -u ${{ github.actor }} --password-stdin $REGISTRY/delta10
+
+      - name: Get versions
+        id: version
+        run: |
+          VERSION=$(yq .version chart/Chart.yaml)
+          LATEST=$(helm show chart oci://$REGISTRY/$IMAGE_PREFIX/$CHART_NAME 2>/dev/null|yq '.version')
+          echo "Latest version: $LATEST"
+          echo "Updating to version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+
+      - name: Helm | Package
+        if: steps.version.outputs.version != steps.version.outputs.latest
+        run: helm package chart
+
+      - name: Helm | Push
+        if: steps.version.outputs.version != steps.version.outputs.latest
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          helm push ./$CHART_NAME-$VERSION.tgz oci://$REGISTRY/$IMAGE_PREFIX
+
+      - name: Helm | Logout
+        if: always()
+        run: helm registry logout $REGISTRY/delta10
