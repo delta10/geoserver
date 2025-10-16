@@ -11,7 +11,7 @@ web:
 staticClients:
   - id: geoserver
     redirectURIs:
-      - 'http://localhost/geoserver/'
+      - 'http://localhost/geoserver/web/login/oauth2/code/oidc'
     name: 'Geoserver'
     secret: somethingsecret
 
