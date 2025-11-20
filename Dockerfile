@@ -1,6 +1,6 @@
 FROM ubuntu:22.04 AS tomcat
 
-ARG GEOSERVER_VERSION=2.27.2
+ARG GEOSERVER_VERSION=2.27.3
 
 ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.27.x/ext-latest
 ARG STABLE_EXTENSIONS_VERSION=2.27
