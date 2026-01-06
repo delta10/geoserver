@@ -6,11 +6,29 @@ This is a build of Geoserver that is based on [the official Geoserver Docker rep
 - Builds for multiple architectures: linux/amd64 and linux/arm64/v8
 - Includes the [Cloud Optimized GeoTIFF (COG)](https://docs.geoserver.org/main/en/user/community/cog/index.html) + [OpenID Connect plugin](https://docs.geoserver.org/main/en/user/community/oauth2/index.html)
 
+
+## Getting started
+
+Build and start the services:
+
+```bash
+docker compose build
+docker compose up
+```
+
+Navigate to:
+- http://localhost/geoserver/
+
+Login credentials:
+- Username: `admin`
+- Password: `geoserver`
+
+
 ## Enable OpenID Connect
 
 Use the following steps to configure OpenID Connect:
 
-1. Login with geoserver / admin
+1. Login with admin / geoserver
 2. Go to "Authentication"
 3. Add a new Authentication filter "oidc" of type OpenID Connect
 4. Enter the name "oidc"
