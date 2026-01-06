@@ -143,6 +143,12 @@ RUN wget --progress=bar:force:noscroll -c \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip "*.jar"
 
+# Geopkg output plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip "*.jar"
+
 # Commons-math3 is used by the monitoring plugin
 RUN wget --progress=bar:force:noscroll -c \
     https://downloads.apache.org/commons/math/binaries/commons-math3-3.6.1-bin.zip \
