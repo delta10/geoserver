@@ -1,14 +1,14 @@
-FROM ubuntu:22.04 AS tomcat
+FROM ubuntu:24.04 AS tomcat
 
-ARG GEOSERVER_VERSION=2.27.5
+ARG GEOSERVER_VERSION=2.28.2
 
-ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.27.x/ext-latest
-ARG STABLE_EXTENSIONS_VERSION=2.27
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.28.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=2.28
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.27.x/community-latest
-ARG COMMUNITY_EXTENSIONS_VERSION=2.27
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.28.x/community-latest
+ARG COMMUNITY_EXTENSIONS_VERSION=2.28
 
-ARG TOMCAT_VERSION=9.0.104
+ARG TOMCAT_VERSION=9.0.111
 
 ARG CORS_ENABLED=false
 ARG CORS_ALLOWED_ORIGINS=*
@@ -37,7 +37,7 @@ ENV CATALINA_OPTS="\$EXTRA_JAVA_OPTS \
 # init
 RUN apt update \
     && apt -y upgrade \
-    && apt install -y --no-install-recommends openssl unzip gdal-bin wget curl openjdk-11-jdk \
+    && apt install -y --no-install-recommends openssl unzip gdal-bin wget curl openjdk-17-jdk \
     && apt clean \
     && rm -rf /var/cache/apt/* \
     && rm -rf /var/lib/apt/lists/*
@@ -160,18 +160,6 @@ RUN wget --progress=bar:force:noscroll -c \
     ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip \
     -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-http-plugin.zip "*.jar"
-
-# Keycloak plugin
-RUN wget --progress=bar:force:noscroll -c \
-    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip \
-    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-keycloak-plugin.zip "*.jar"
-
-# OAuth2 / OpenID Connect plugin
-RUN wget --progress=bar:force:noscroll -c \
-    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip \
-    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip "*.jar"
 
 RUN rm -Rf /opt/additional_libs
 
