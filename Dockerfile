@@ -1,14 +1,14 @@
 FROM ubuntu:24.04 AS tomcat
 
-ARG GEOSERVER_VERSION=2.28.4
+ARG GEOSERVER_VERSION=3.0.0
 
-ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.28.x/ext-latest
-ARG STABLE_EXTENSIONS_VERSION=2.28
+ARG STABLE_EXTENSIONS_URL=https://build.geoserver.org/geoserver/3.0.x/ext-latest
+ARG STABLE_EXTENSIONS_VERSION=3.0.0
 
-ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/2.28.x/community-latest
-ARG COMMUNITY_EXTENSIONS_VERSION=2.28
+ARG COMMUNITY_EXTENSIONS_URL=https://build.geoserver.org/geoserver/3.0.x/community-latest
+ARG COMMUNITY_EXTENSIONS_VERSION=3.0.0
 
-ARG TOMCAT_VERSION=9.0.111
+ARG TOMCAT_VERSION=11.0.24
 
 ARG CORS_ENABLED=false
 ARG CORS_ALLOWED_ORIGINS=*
@@ -44,7 +44,7 @@ RUN apt update \
 
 WORKDIR /opt/
 
-RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz \
+RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz \
     && tar xf apache-tomcat-${TOMCAT_VERSION}.tar.gz \
     && rm apache-tomcat-${TOMCAT_VERSION}.tar.gz \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT \
@@ -119,6 +119,12 @@ RUN mkdir -p /opt/geoserver_data && \
 RUN mkdir -p /opt/additional_libs && \
     chown -R geoserver /opt/additional_libs
 
+# OAuth2 / OpenID Connect plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sec-oidc-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sec-oidc-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sec-oidc-plugin.zip "*.jar"
+
 # SQLServer plugin (Microsoft SQL)
 RUN wget --progress=bar:force:noscroll -c \
     ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-sqlserver-plugin.zip \
@@ -143,17 +149,18 @@ RUN wget --progress=bar:force:noscroll -c \
     -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-monitor-plugin.zip "*.jar"
 
-# Geopkg output plugin
-RUN wget --progress=bar:force:noscroll -c \
-    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip \
-    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip "*.jar"
-
 # Commons-math3 is used by the monitoring plugin
 RUN wget --progress=bar:force:noscroll -c \
     https://downloads.apache.org/commons/math/binaries/commons-math3-3.6.1-bin.zip \
     -O /opt/additional_libs/commons-math3-3.6.1-bin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/commons-math3-3.6.1-bin.zip "commons-math3-3.6.1/commons-math3-3.6.1.jar"
+
+
+# Geopkg output plugin
+RUN wget --progress=bar:force:noscroll -c \
+    ${STABLE_EXTENSIONS_URL}/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip \
+    -O /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip && \
+    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${STABLE_EXTENSIONS_VERSION}-SNAPSHOT-geopkg-output-plugin.zip "*.jar"
 
 # Cloud Optimized GeoTIFF plugin
 RUN wget --progress=bar:force:noscroll -c \
@@ -175,12 +182,6 @@ RUN wget --progress=bar:force:noscroll -c \
     ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-google-plugin.zip \
     -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-google-plugin.zip && \
     unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-cog-google-plugin.zip "*.jar"
-
-# OAuth2 / OpenID Connect plugin
-RUN wget --progress=bar:force:noscroll -c \
-    ${COMMUNITY_EXTENSIONS_URL}/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip \
-    -O /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip && \
-    unzip -q -o -d ${GEOSERVER_LIB_DIR} /opt/additional_libs/geoserver-${COMMUNITY_EXTENSIONS_VERSION}-SNAPSHOT-sec-oauth2-openid-connect-plugin.zip "*.jar"
 
 # OGC API Maps
 RUN wget --progress=bar:force:noscroll -c \
