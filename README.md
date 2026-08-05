@@ -17,7 +17,7 @@ docker compose up
 ```
 
 Navigate to:
-- http://localhost/geoserver/
+- http://localhost:8080/geoserver/
 
 Login credentials:
 - Username: `admin`
@@ -35,7 +35,7 @@ Use the following steps to configure OpenID Connect:
 5. Use http://dex:6556/ as "Discovery document" and click "Discover"
 6. Uncheck "Force Access Token URI HTTPS Secured Protocol" and "Force User Authorization URI HTTPS Secured Protocol"
 7. Replace http://localhost:6556 with http://dex:6556 for the Access Token URI, Check Token Endpoint URL and JSON Web Key set URI
-8. Set "Logout URI" to http://localhost/geoserver/
+8. Set "Logout URI" to http://localhost:8080/geoserver/
 9. Set "Client ID" to geoserver
 10. Set "Client Secret" to somethingsecret
 11. Set "Response Mode" to query
